@@ -1,0 +1,45 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         Int         @id @default(autoincrement())
+  nome       String      @db.VarChar
+  papel      String      @db.VarChar
+  username   String      @unique @db.VarChar
+  hashedpass String      @db.VarChar
+  Musics     Musics[]
+  Repertory  Repertory[]
+}
+
+model Musics {
+  id          Int        @id @default(autoincrement())
+  nome        String     @db.VarChar
+  tom         String     @db.VarChar
+  cifra       String     @db.VarChar
+  categoria   String     @db.VarChar
+  created_at  DateTime
+  updated_at  DateTime
+  user        User       @relation(fields: [created_by], references: [id])
+  created_by  Int
+  updated_by  Int
+  Repertory   Repertory? @relation(fields: [repertoryId], references: [id])
+  repertoryId Int?
+}
+
+model Repertory {
+  id         Int      @id @default(autoincrement())
+  data       DateTime
+  local      String   @db.VarChar
+  musicas    Musics[]
+  created_at DateTime
+  updated_at DateTime
+  user       User     @relation(fields: [created_by], references: [id])
+  created_by Int
+  updated_by Int
+}
