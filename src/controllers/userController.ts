@@ -4,27 +4,74 @@ import { User } from "../models/userModel";
 
 const prisma = new PrismaClient();
 
-const userGet = async (req: Request, res: Response) => {
+// GET ROUTES
+const userGet = async (request: Request, response: Response) => {
     await prisma.user.findMany().then((user:User[]) => {
       console.log(user);
-      res.send(user);
+      response.send(user);
     }).catch((err: any) => {
       console.log(err);
-      res.sendStatus(404);
+      response.sendStatus(404);
     });
 };
 
-const userPost = async (req: Request, res: Response) => {
-    const userRecived = req.body;
-    console.log(req);
+// POST ROUTES
+const userPost = async (request: Request, response: Response) => {
+    const userRecived = request.body;
     await prisma.user.create({data: userRecived}).then((user) => {
-        res.send(user);
+        response.send(user);
     }).catch(err => {
-        res.sendStatus(400);
+        response.sendStatus(400);
     });
 };
 
-// const userDelete
-// const userUpdate
+// DELETE ROUTES
+const userDelete = async (request: Request, response: Response) => {
+  console.log(request.params.id);
+  const userRecived = await prisma.user.findUnique({ 
+    where:  {
+      id: Number(request.params.id),
+    }
+  });
+  console.log(userRecived);
+  if(userRecived){
+    const user = await prisma.user.delete({
+      where: {
+        id: Number(request.params.id),
+      }
+    }).then((user) => {
+      response.sendStatus(204); 
+    });
+  }else{
+    response.sendStatus(404);
+  };
+};
 
-export default {userGet, userPost};
+// PATCH ROUTES
+const userPatch = async (request: Request, response: Response) => {
+  console.log(request.params.id);
+  const userRecived = await prisma.user.findUnique({ 
+    where:  {
+      id: Number(request.params.id),
+    }
+  });
+  console.log(userRecived);
+  if(userRecived){
+    const user = await prisma.user.update({
+      where: {
+        id: Number(request.params.id),
+      },
+      data: {
+        nome: request.body.nome,
+        papel: request.body.papel,
+        username: request.body.username,
+        hashedpass: request.body.hashedpass,
+      },
+    });
+    response.sendStatus(200);
+  }else{
+    response.sendStatus(404);
+  };
+};
+
+export default {userGet, userPost, userDelete, userPatch};
