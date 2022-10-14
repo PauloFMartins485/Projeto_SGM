@@ -1,18 +1,10 @@
-import express, { application, Express, Request, Response } from 'express';
-import { User } from './types/userModel';
+import express, {Express} from 'express';
+import {userRouter} from './routes/userRoutes';
 
 const app: Express = express();
+app.use(express.json())
+app.use("/users", userRouter)
 
-app.get("/hello", (req: Request, res: Response) => {
-  res.send('Express + TypeScript Server');
-});
-
-app.post("/users", (req: Request, res: Response) => {
-  const userRecived = req.body
-  console.log(req)
-  res.send(userRecived)
-});
-  
 app.listen(8000, () => {
-    console.log("Server funcionando!")
+    console.log("Server funcionando!");
 });
