@@ -1,16 +1,15 @@
 import { PrismaClient } from '@prisma/client';
 import { Request, Response } from "express";
-import { User } from "../models/userModel";
+import { NewData, User } from "../models/userModel";
+import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
 // GET ROUTES
 const userGet = async (request: Request, response: Response) => {
-    await prisma.user.findMany().then((user:User[]) => {
-      console.log(user);
+    await prisma.user.findMany().then((user:NewData[]) => {
       response.send(user);
     }).catch((err: any) => {
-      console.log(err);
       response.sendStatus(404);
     });
 };
@@ -18,8 +17,23 @@ const userGet = async (request: Request, response: Response) => {
 // POST ROUTES
 const userPost = async (request: Request, response: Response) => {
     const userRecived = request.body;
-    await prisma.user.create({data: userRecived}).then((user) => {
-        response.send(user);
+    const recivedPassword = userRecived.hashedpass
+    const salt = bcrypt.genSaltSync(10);
+    const hashedPassword = bcrypt.hashSync(recivedPassword, salt);
+    console.log(hashedPassword)
+    const data = {
+      nome: request.body.nome,
+      papel: request.body.papel,
+      username: request.body.username,
+      hashedpass: hashedPassword,
+    }
+    await prisma.user.create({data: data}).then((user) => {
+      const newData = {
+        nome: user.nome,
+        papel: user.papel,
+        username: user.username,
+      }
+      response.send(newData);
     }).catch(err => {
         response.sendStatus(400);
     });
@@ -27,15 +41,13 @@ const userPost = async (request: Request, response: Response) => {
 
 // DELETE ROUTES
 const userDelete = async (request: Request, response: Response) => {
-  console.log(request.params.id);
   const userRecived = await prisma.user.findUnique({ 
     where:  {
       id: Number(request.params.id),
     }
   });
-  console.log(userRecived);
   if(userRecived){
-    const user = await prisma.user.delete({
+    await prisma.user.delete({
       where: {
         id: Number(request.params.id),
       }
@@ -47,17 +59,15 @@ const userDelete = async (request: Request, response: Response) => {
   };
 };
 
-// PATCH ROUTES
+// PUT ROUTES
 const userPatch = async (request: Request, response: Response) => {
-  console.log(request.params.id);
   const userRecived = await prisma.user.findUnique({ 
     where:  {
       id: Number(request.params.id),
     }
   });
-  console.log(userRecived);
   if(userRecived){
-    const user = await prisma.user.update({
+    await prisma.user.update({
       where: {
         id: Number(request.params.id),
       },
@@ -73,5 +83,7 @@ const userPatch = async (request: Request, response: Response) => {
     response.sendStatus(404);
   };
 };
+
+// PATCH ROUTES
 
 export default {userGet, userPost, userDelete, userPatch};
