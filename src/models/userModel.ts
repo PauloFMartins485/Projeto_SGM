@@ -4,3 +4,8 @@ export interface User {
     username: string;
     hashedpass: string;
 }
+export interface NewData {
+    nome: string;
+    papel: string;
+    username: string;
+}
