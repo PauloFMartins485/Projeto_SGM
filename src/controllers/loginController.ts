@@ -12,11 +12,13 @@ const loginPost = async (request: Request, response: Response) => {
     const userRecived = request.body;
     const recivedPassword = userRecived.password;
 
-    const user = await prisma.user.findFirst({ where: {username: userRecived.username}});
+    const user = await prisma.user.findFirst({ where: {username: userRecived.email}});
     
     if (user) {
         const isValid = bcrypt.compareSync(userRecived.password, user.hashedpass);
         response.json( `O seu login foi realizado com ${isValid?"sucesso":"falha"}`).send()
+    } else {
+        response.json("Falha na atentificação!")
     }
 }
 

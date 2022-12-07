@@ -60,6 +60,8 @@ const userDelete = async (request: Request, response: Response) => {
 };
 
 // PUT ROUTES
+
+// PATCH ROUTES
 const userPatch = async (request: Request, response: Response) => {
   const userRecived = await prisma.user.findUnique({ 
     where:  {
@@ -83,7 +85,5 @@ const userPatch = async (request: Request, response: Response) => {
     response.sendStatus(404);
   };
 };
-
-// PATCH ROUTES
 
 export default {userGet, userPost, userDelete, userPatch};
